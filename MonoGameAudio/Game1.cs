@@ -49,11 +49,18 @@ namespace MonoGameAudio
         SoundEffect ding;
         GamePadState pad, oldPad;
         KeyboardState keyboard;
+        KeyboardState oldKeyboard;
         SpriteFont font;
-        bool pressingKey;
+        bool isGameRunning = true;
+        bool didLose = false;
+        string gameEndResponse = "YOU LOST!";
 
         int currentQuestion = 0;
         bool questionGenerated = false;
+
+
+
+        Question.PossibleChoices correctChoice;
 
         Question[] questions = new Question[]
         {
@@ -88,6 +95,17 @@ namespace MonoGameAudio
         protected override void Update(GameTime gameTime)
         {
 
+            if (currentQuestion + 1 > questions.Length)
+            {
+                gameEndResponse = "YOU WON! PRESS 'R' TO RESTART!";
+                isGameRunning = false;
+                didLose = false;
+            }
+            else
+            {
+                correctChoice = questions[currentQuestion].correctChoice;
+            }
+
             pad = GamePad.GetState(PlayerIndex.One);
             keyboard = Keyboard.GetState();
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
@@ -109,34 +127,30 @@ namespace MonoGameAudio
                 }*/
             }
 
-            Question.PossibleChoices correctChoice = questions[currentQuestion].correctChoice;
+            
 
-            if ((pad.IsButtonDown(Buttons.X) || keyboard.IsKeyDown(Keys.X)) && correctChoice == Question.PossibleChoices.X)
+            if (isGameRunning)
             {
-                pressingKey = true;
-                NextQuestion();
-            }
-            else if ((pad.IsButtonDown(Buttons.Y) || keyboard.IsKeyDown(Keys.Y)) && correctChoice == Question.PossibleChoices.Y)
-            {
-                pressingKey = true;
-                NextQuestion();
-            }
-            else if ((pad.IsButtonDown(Buttons.A) || keyboard.IsKeyDown(Keys.A)) && correctChoice == Question.PossibleChoices.A)
-            {
-                pressingKey = true;
-                NextQuestion();
-            }
-            else if ((pad.IsButtonDown(Buttons.B) || keyboard.IsKeyDown(Keys.B)) && correctChoice == Question.PossibleChoices.B)
-            {
-                pressingKey = true;
-                NextQuestion();
+                if (detectKeyPressOption(Keys.X))
+                {
+                    NextQuestion();
+                }
+                else if (detectKeyPressOption(Keys.Y))
+                {
+                    NextQuestion();
+                }
+                else if (detectKeyPressOption(Keys.A))
+                {
+                    NextQuestion();
+                }
+                else if (detectKeyPressOption(Keys.B))
+                {
+                    NextQuestion();
+                }
             }
 
-            if (keyboard.IsKeyUp(Keys.X)) { pressingKey = false; }
-            else if (keyboard.IsKeyUp(Keys.Y)) { pressingKey = false; }
-            else if (keyboard.IsKeyUp(Keys.A)) { pressingKey = false; }
-            else if (keyboard.IsKeyUp(Keys.B)) { pressingKey = false; }
 
+            oldKeyboard = keyboard;
             oldPad = pad;
 
 
@@ -144,6 +158,46 @@ namespace MonoGameAudio
             // TODO: Add your update logic here
 
             base.Update(gameTime);
+        }
+
+        private bool detectKeyPressOption(Keys key)
+        {
+            if (keyboard.GetPressedKeys().Contains(key) && !oldKeyboard.GetPressedKeys().Contains(key))
+            {
+                Question.PossibleChoices correctOptionCorelatingToKey;
+
+                switch (key) 
+                {
+                    case Keys.A:
+                        correctOptionCorelatingToKey = Question.PossibleChoices.A;
+                        break;
+                    case Keys.B:
+                        correctOptionCorelatingToKey = Question.PossibleChoices.B;
+                        break;
+                    case Keys.X:
+                        correctOptionCorelatingToKey = Question.PossibleChoices.X;
+                        break;
+                    default:
+                        correctOptionCorelatingToKey = Question.PossibleChoices.Y;
+                        break;
+                }
+                
+
+                if (correctChoice == correctOptionCorelatingToKey)
+                {
+                    return true;
+                }
+                else
+                {
+                    gameEndResponse = "YOU LOST! CORRECT ANSWER WAS '" + correctChoice.ToString() + "'! PRESS 'R' TO RESTART!";
+                    isGameRunning = false;
+                    didLose = true;
+                    return false;
+                }
+
+            }
+
+            return false;
         }
 
         protected override void Draw(GameTime gameTime)
@@ -154,10 +208,24 @@ namespace MonoGameAudio
 
             // TODO: Add your drawing code here
 
+
+
+
+
+            if (!isGameRunning)
+            {
+                if (keyboard.IsKeyDown(Keys.R))
+                {
+                    isGameRunning = true;
+                    didLose = false;
+                    currentQuestion = 0;
+                }
+            }
+
+
             displayQuestion(currentQuestion);
+            
 
-
-           
 
             _spriteBatch.End();
 
@@ -167,26 +235,34 @@ namespace MonoGameAudio
 
         public void displayQuestion(int questionNum)
         {
-            
-            _spriteBatch.DrawString(font, "Song Name Here", new Vector2(350, 250), Color.White);
-
-            for (int i = 0; i < questions.Count(); ++i)
+            if (isGameRunning)
             {
-                if (i == currentQuestion)
+                _spriteBatch.DrawString(font, "Song Name Here", new Vector2(350, 250), Color.White);
+
+                for (int i = 0; i < questions.Count(); ++i)
                 {
-                    _spriteBatch.DrawString(font, " #" + (currentQuestion + 1).ToString() + ". " + questions[i].question, new Vector2(0, 0), Color.White);
-                    _spriteBatch.DrawString(font, " X. " + questions[i].choice1, new Vector2(0, 30), Color.White);
-                    _spriteBatch.DrawString(font, " Y. " + questions[i].choice2, new Vector2(0, 50), Color.White);
-                    _spriteBatch.DrawString(font, " A. " + questions[i].choice3, new Vector2(0, 70), Color.White);
-                    _spriteBatch.DrawString(font, " B. " + questions[i].choice4, new Vector2(0, 90), Color.White);
+                    if (i == currentQuestion)
+                    {
+                        _spriteBatch.DrawString(font, " #" + (currentQuestion + 1).ToString() + ". " + questions[i].question, new Vector2(0, 0), Color.White);
+                        _spriteBatch.DrawString(font, " X. " + questions[i].choice1, new Vector2(0, 30), Color.White);
+                        _spriteBatch.DrawString(font, " Y. " + questions[i].choice2, new Vector2(0, 50), Color.White);
+                        _spriteBatch.DrawString(font, " A. " + questions[i].choice3, new Vector2(0, 70), Color.White);
+                        _spriteBatch.DrawString(font, " B. " + questions[i].choice4, new Vector2(0, 90), Color.White);
+                    }
                 }
             }
+            else
+            {
+                _spriteBatch.DrawString(font, gameEndResponse, new Vector2(0, 0), Color.White);
+            }
+            
+
 
         }
 
         public void NextQuestion()
         {
-            Debug.WriteLine("Detected input");
+            
             if (currentQuestion < questions.Length)
             {
                 currentQuestion++;
