@@ -19,6 +19,12 @@
 /processorParam:Quality=Best
 /build:ding.wav
 
+#begin OGGBill.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:OGGBill.ogg
+
 #begin OnScreen.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

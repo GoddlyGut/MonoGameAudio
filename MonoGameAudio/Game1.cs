@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Media;
 using System.Linq;
 using System.Xml.Linq;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 public class Question
 {
@@ -15,6 +16,7 @@ public class Question
     public string choice3;
     public string choice4;
     public PossibleChoices correctChoice;
+    public string songName;
 
     public enum PossibleChoices
     {
@@ -26,7 +28,7 @@ public class Question
 
     
 
-    public Question(string question, string choice1, string choice2, string choice3, string choice4, PossibleChoices correctChoice)
+    public Question(string question, string choice1, string choice2, string choice3, string choice4, PossibleChoices correctChoice, string songName)
     {
         this.question = question;
         this.choice1 = choice1;
@@ -34,6 +36,7 @@ public class Question
         this.choice3 = choice3;
         this.choice4 = choice4;
         this.correctChoice = correctChoice;
+        this.songName = songName;
         
     }
 }
@@ -47,6 +50,7 @@ namespace MonoGameAudio
         private SpriteBatch _spriteBatch;
         Song song1;
         SoundEffect ding;
+        List<Song> songs = new List<Song>();
         GamePadState pad, oldPad;
         KeyboardState keyboard;
         KeyboardState oldKeyboard;
@@ -64,15 +68,15 @@ namespace MonoGameAudio
 
         Question[] questions = new Question[]
         {
-            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.X),
-            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.Y),
-            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.A),
-            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.B),
+            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.X, "OGGBill"),
+            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.Y, "OGGBill"),
+            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.A, "OGGBill"),
+            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.B, "OGGBill"),
         };
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
-            Content.RootDirectory = "Content";
+            Content.RootDirectory = @"\my documents\Visual Studio 2022\Projects\MonoGameAudio\MonoGameAudio\bin\Debug\net6.0\Content";
             IsMouseVisible = true;
 
         }
@@ -88,8 +92,14 @@ namespace MonoGameAudio
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             ding = Content.Load<SoundEffect>("ding");
+            foreach(Question question in questions) 
+            {
+                songs.Add(Content.Load<Song>("OGGBill"));
+            }
+            Debug.WriteLine(songs.Count);
             //song1 = Content.Load<Song>("03 YYZ - Rush");
             font = Content.Load<SpriteFont>("OnScreen");
+            playAudio(currentQuestion);
         }
 
         protected override void Update(GameTime gameTime)
@@ -112,7 +122,7 @@ namespace MonoGameAudio
                 Exit();
             if (pad.Buttons.RightShoulder == ButtonState.Pressed && oldPad.Buttons.RightShoulder == ButtonState.Released)
             {
-                ding.Play();
+                
                 /*if (MediaPlayer.State == MediaState.Stopped)
                 {
                     MediaPlayer.Play(song1);
@@ -133,18 +143,22 @@ namespace MonoGameAudio
             {
                 if (detectKeyPressOption(Keys.X))
                 {
+                    ding.Play();
                     NextQuestion();
                 }
                 else if (detectKeyPressOption(Keys.Y))
                 {
+                    ding.Play();
                     NextQuestion();
                 }
                 else if (detectKeyPressOption(Keys.A))
                 {
+                    ding.Play();
                     NextQuestion();
                 }
                 else if (detectKeyPressOption(Keys.B))
                 {
+                    ding.Play();
                     NextQuestion();
                 }
             }
@@ -200,13 +214,19 @@ namespace MonoGameAudio
             return false;
         }
 
+        public void playAudio(int questionNum)
+        {
+            if (questionNum + 1 <= questions.Length)
+            {
+                MediaPlayer.Play(songs[questionNum]);
+            }
+            
+        }
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             _spriteBatch.Begin();
-
-            // TODO: Add your drawing code here
 
 
 
@@ -219,6 +239,7 @@ namespace MonoGameAudio
                     isGameRunning = true;
                     didLose = false;
                     currentQuestion = 0;
+                    playAudio(currentQuestion);
                 }
             }
 
@@ -237,8 +258,6 @@ namespace MonoGameAudio
         {
             if (isGameRunning)
             {
-                _spriteBatch.DrawString(font, "Song Name Here", new Vector2(350, 250), Color.White);
-
                 for (int i = 0; i < questions.Count(); ++i)
                 {
                     if (i == currentQuestion)
@@ -265,7 +284,9 @@ namespace MonoGameAudio
             
             if (currentQuestion < questions.Length)
             {
+                
                 currentQuestion++;
+                playAudio(currentQuestion);
             }
         }
 
