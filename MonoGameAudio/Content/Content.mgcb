@@ -19,6 +19,18 @@
 /processorParam:Quality=Best
 /build:ding.wav
 
+#begin InAMinute.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:InAMinute.ogg
+
+#begin Mockingbird.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Mockingbird.ogg
+
 #begin OGGBill.ogg
 /importer:OggImporter
 /processor:SongProcessor
@@ -31,4 +43,10 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:OnScreen.spritefont
+
+#begin Stan.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Stan.mp3
 

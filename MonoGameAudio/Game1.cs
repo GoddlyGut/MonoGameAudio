@@ -68,10 +68,10 @@ namespace MonoGameAudio
 
         Question[] questions = new Question[]
         {
-            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.X, "OGGBill"),
-            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.Y, "OGGBill"),
-            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.A, "OGGBill"),
-            new Question("test", "test", "test", "test", "test", Question.PossibleChoices.B, "OGGBill"),
+            new Question("What is this song?", "OGGBill", "Bill Nye Song", "Bills", "Nye", Question.PossibleChoices.X, "OGGBill"),
+            new Question("What is this song?", "Hailes Song", "MockingBird", "Not Afraid", "Broken", Question.PossibleChoices.Y, "Mockingbird"),
+            new Question("What is this song?", "Dedication", "Fall", "Stan", "Favorite", Question.PossibleChoices.A, "Stan"),
+            new Question("What is this song?", "Wait", "Forever", "Never Hating", "In A Minute", Question.PossibleChoices.B, "InAMinute"),
         };
         public Game1()
         {
@@ -94,10 +94,17 @@ namespace MonoGameAudio
             ding = Content.Load<SoundEffect>("ding");
             foreach(Question question in questions) 
             {
-                songs.Add(Content.Load<Song>("OGGBill"));
+                try
+                {
+                    songs.Add(Content.Load<Song>(question.songName));
+                }
+                catch
+                {
+                    Debug.WriteLine("Unable to add song");
+                }
+                
+
             }
-            Debug.WriteLine(songs.Count);
-            //song1 = Content.Load<Song>("03 YYZ - Rush");
             font = Content.Load<SpriteFont>("OnScreen");
             playAudio(currentQuestion);
         }
@@ -120,23 +127,6 @@ namespace MonoGameAudio
             keyboard = Keyboard.GetState();
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            if (pad.Buttons.RightShoulder == ButtonState.Pressed && oldPad.Buttons.RightShoulder == ButtonState.Released)
-            {
-                
-                /*if (MediaPlayer.State == MediaState.Stopped)
-                {
-                    MediaPlayer.Play(song1);
-                }
-                else if (MediaPlayer.State == MediaState.Playing)
-                {
-                    MediaPlayer.Pause();
-                }
-                else if (MediaPlayer.State == MediaState.Paused) 
-                {
-                    MediaPlayer.Resume();
-                }*/
-            }
-
             
 
             if (isGameRunning)
